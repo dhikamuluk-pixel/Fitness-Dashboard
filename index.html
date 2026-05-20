@@ -428,7 +428,7 @@
     <div class="metric-grid">
       <div class="metric">
         <div class="metric-label"><i class="ti ti-scale"></i> Berat</div>
-        <div class="metric-val" id="ov-weight">—</div>
+        <div class="metric-val" id="ov-weight">â€”</div>
         <div class="metric-unit">kg hari ini</div>
       </div>
       <div class="metric">
@@ -443,7 +443,7 @@
       </div>
       <div class="metric">
         <div class="metric-label"><i class="ti ti-clock"></i> Puasa</div>
-        <div class="metric-val" id="ov-fast">—</div>
+        <div class="metric-val" id="ov-fast">â€”</div>
         <div class="metric-unit">jam terakhir</div>
       </div>
     </div>
@@ -539,7 +539,7 @@
       <div class="field">
         <label class="field-label">Quick-add preset</label>
         <select id="quickFood" onchange="quickFill()">
-          <option value="">— pilih preset —</option>
+          <option value="">â€” pilih preset â€”</option>
           <option value="gado">Gado-Gado Custom (2 telur)</option>
           <option value="whey1">Whey Protein (1 scoop)</option>
           <option value="whey2">Whey Protein (2 scoop)</option>
@@ -626,20 +626,20 @@
           <input type="date" id="wDate">
         </div>
         <div class="field">
-          <label class="field-label">RPE (1–10)</label>
+          <label class="field-label">RPE (1â€“10)</label>
           <input type="number" id="wRpe" min="1" max="10" step="1" placeholder="7">
         </div>
       </div>
       <div class="field">
         <label class="field-label">Tipe sesi</label>
         <select id="wType" onchange="onWTypeChange()">
-          <option value="upper_push">Upper Push — Dada / Bahu / Tricep</option>
-          <option value="upper_pull">Upper Pull — Punggung / Bicep / Dead Hang</option>
-          <option value="leg">Leg Day — Quads / Hamstrings / Calves</option>
-          <option value="run_interval">Lari — Norwegian 4x4 Intervals</option>
-          <option value="run_tempo">Lari — Broken Tempo / Interval Cruise</option>
-          <option value="run_aerobic">Lari — Aerobic Threshold</option>
-          <option value="run_easy">Lari — Easy / Recovery Run</option>
+          <option value="upper_push">Upper Push â€” Dada / Bahu / Tricep</option>
+          <option value="upper_pull">Upper Pull â€” Punggung / Bicep / Dead Hang</option>
+          <option value="leg">Leg Day â€” Quads / Hamstrings / Calves</option>
+          <option value="run_interval">Lari â€” Norwegian 4x4 Intervals</option>
+          <option value="run_tempo">Lari â€” Broken Tempo / Interval Cruise</option>
+          <option value="run_aerobic">Lari â€” Aerobic Threshold</option>
+          <option value="run_easy">Lari â€” Easy / Recovery Run</option>
         </select>
       </div>
 
@@ -656,8 +656,8 @@
         </div>
         <div class="field-row">
           <div class="field">
-            <label class="field-label">Pace (min/km) — auto</label>
-            <input type="text" id="wPace" placeholder="—" readonly style="color:var(--text3);">
+            <label class="field-label">Pace (min/km) â€” auto</label>
+            <input type="text" id="wPace" placeholder="â€”" readonly style="color:var(--text3);">
           </div>
           <div class="field">
             <label class="field-label">Sepatu / Gear</label>
@@ -676,7 +676,7 @@
 
       <div id="gym-fields">
         <div class="field">
-          <label class="field-label">Dead Hang (detik) — khusus Pull Day</label>
+          <label class="field-label">Dead Hang (detik) â€” khusus Pull Day</label>
           <input type="number" id="wHang" min="0" step="1" placeholder="40">
         </div>
       </div>
@@ -711,7 +711,7 @@ let state = {
     {id:'r1', label:'Workout pagi (~4:20 AM)', done: false},
     {id:'r2', label:'Sunlight exposure pagi', done: false},
     {id:'r3', label:'NSDR / deep rest', done: false},
-    {id:'r4', label:'Intermittent fasting ≥13 jam', done: false},
+    {id:'r4', label:'Intermittent fasting â‰¥13 jam', done: false},
     {id:'r5', label:'Post-lunch walking', done: false},
     {id:'r6', label:'Suplemen harian (Creatine, Mg, Omega-3, D3)', done: false}
   ],
@@ -810,7 +810,7 @@ function renderFoodLog() {
     <div class="log-item">
       <div class="log-left">
         <div class="log-name">${f.name}</div>
-        <div class="log-meta">${f.cal} kcal &nbsp;·&nbsp; P ${f.prot}g &nbsp;·&nbsp; K ${f.carb}g &nbsp;·&nbsp; F ${f.fiber}g</div>
+        <div class="log-meta">${f.cal} kcal &nbsp;Â·&nbsp; P ${f.prot}g &nbsp;Â·&nbsp; K ${f.carb}g &nbsp;Â·&nbsp; F ${f.fiber}g</div>
       </div>
       <button class="del-btn" onclick="delFood(${f.id})" title="Hapus"><i class="ti ti-trash"></i></button>
     </div>`).join('');
@@ -856,7 +856,7 @@ function renderWeightLog() {
     <div class="log-item">
       <div class="log-left">
         <div class="log-date">${fmt(w.date)}</div>
-        <div class="log-name">${w.weight} kg ${w.grip ? '&nbsp;·&nbsp; Dead hang: ' + w.grip + 's' : ''}</div>
+        <div class="log-name">${w.weight} kg ${w.grip ? '&nbsp;Â·&nbsp; Dead hang: ' + w.grip + 's' : ''}</div>
         ${w.note ? `<div class="log-meta">${w.note}</div>` : ''}
       </div>
       <button class="del-btn" onclick="delWeight(${w.id})" title="Hapus"><i class="ti ti-trash"></i></button>
@@ -871,7 +871,7 @@ function delWeight(id) {
 function updateOverviewWeight() {
   const last = state.weights[state.weights.length - 1];
   const el = document.getElementById('ov-weight');
-  if (el) el.textContent = last ? last.weight : '—';
+  if (el) el.textContent = last ? last.weight : 'â€”';
   const hw = document.getElementById('headerWeight');
   if (hw) hw.textContent = last ? last.weight + ' kg' : '';
 }
@@ -903,11 +903,11 @@ function renderFastLog() {
     return `<div class="log-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
         <div>
-          <div class="log-date">${fmtDT(f.start)} → ${fmtDT(f.end)}</div>
+          <div class="log-date">${fmtDT(f.start)} â†’ ${fmtDT(f.end)}</div>
           <div class="log-name">${f.hours.toFixed(1)} jam <span style="font-size:12px;color:var(--text3);">/ target ${f.target} jam</span></div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span class="badge ${met?'badge-green':'badge-amber'}">${met?'✓ Met':'Kurang'}</span>
+          <span class="badge ${met?'badge-green':'badge-amber'}">${met?'âœ“ Met':'Kurang'}</span>
           <button class="del-btn" onclick="delFast(${f.id})" title="Hapus"><i class="ti ti-trash"></i></button>
         </div>
       </div>
@@ -924,8 +924,8 @@ function delFast(id) { state.fasts = state.fasts.filter(f => f.id !== id); save(
 // WORKOUT
 const wLabels = {
   upper_push:'Upper Push', upper_pull:'Upper Pull', leg:'Leg Day',
-  run_interval:'Lari — Norwegian 4x4', run_tempo:'Lari — Broken Tempo',
-  run_aerobic:'Lari — Aerobic Threshold', run_easy:'Lari — Easy Run'
+  run_interval:'Lari â€” Norwegian 4x4', run_tempo:'Lari â€” Broken Tempo',
+  run_aerobic:'Lari â€” Aerobic Threshold', run_easy:'Lari â€” Easy Run'
 };
 const runTypes = new Set(['run_interval','run_tempo','run_aerobic','run_easy']);
 
@@ -985,13 +985,13 @@ function renderWorkoutLog() {
   el.innerHTML = [...state.workouts].reverse().map(w => {
     const isRun = runTypes.has(w.type);
     const meta = isRun
-      ? [w.dist?w.dist+'km':null, w.time||null, w.pace?'@'+w.pace+'/km':null, w.gear||null].filter(Boolean).join(' · ')
-      : [w.hang?'Dead hang: '+w.hang+'s':null].filter(Boolean).join(' · ');
+      ? [w.dist?w.dist+'km':null, w.time||null, w.pace?'@'+w.pace+'/km':null, w.gear||null].filter(Boolean).join(' Â· ')
+      : [w.hang?'Dead hang: '+w.hang+'s':null].filter(Boolean).join(' Â· ');
     const badgeCls = isRun ? 'badge-blue' : (w.type==='leg'?'badge-amber':'badge-green');
     return `<div class="log-item">
       <div class="log-left">
-        <div class="log-date">${fmt(w.date)}${w.rpe?' · RPE '+w.rpe:''}</div>
-        <div class="log-name">${w.label}${w.isPB?' 🏅':''}</div>
+        <div class="log-date">${fmt(w.date)}${w.rpe?' Â· RPE '+w.rpe:''}</div>
+        <div class="log-name">${w.label}${w.isPB?' ðŸ…':''}</div>
         ${meta?`<div class="log-meta">${meta}</div>`:''}
         ${w.note?`<div class="log-meta" style="color:var(--text3)">${w.note}</div>`:''}
       </div>
@@ -1072,7 +1072,7 @@ function renderOverview() {
   const pbd = document.getElementById('ov-pb-date'); if(pbd) pbd.textContent = state.pb.date;
   const lastFast = state.fasts[state.fasts.length-1];
   const ovf = document.getElementById('ov-fast');
-  if(ovf) ovf.textContent = lastFast ? lastFast.hours.toFixed(1) : '—';
+  if(ovf) ovf.textContent = lastFast ? lastFast.hours.toFixed(1) : 'â€”';
 }
 
 onWTypeChange();
