@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fitness Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #0e0f11;
+    --bg2: #161719;
+    --bg3: #1e2023;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f0ee;
+    --text2: #9a9a96;
+    --text3: #5a5a56;
+    --accent: #b8f55e;
+    --accent2: #5ef5b8;
+    --accent3: #f5b85e;
+    --red: #f55e5e;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* HEADER */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    background: rgba(14,15,17,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .header-logo {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .header-date {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  /* LAYOUT */
+  .container { max-width: 720px; margin: 0 auto; padding: 24px 16px; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text2);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tab.active {
+    background: var(--accent);
+    color: #0e0f11;
+  }
+  .tab:hover:not(.active) { color: var(--text); background: var(--bg3); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* METRIC GRID */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .metric {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .metric-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .metric-val {
+    font-family: var(--font-mono);
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .metric-unit {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 4px;
+    font-family: var(--font-mono);
+  }
+
+  /* CARD */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .card-title i { color: var(--accent); }
+
+  /* FORM */
+  .field { margin-bottom: 12px; }
+  .field-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    display: block;
+  }
+  input[type=text], input[type=number], input[type=date],
+  input[type=datetime-local], input[type=time], select, textarea {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--bg3); }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .field-row-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+  @media (max-width: 480px) {
+    .field-row-4 { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* BUTTON */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary { background: var(--accent); color: #0e0f11; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-ghost {
+    background: var(--bg3);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+
+  /* LOG LIST */
+  .log-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 340px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .log-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .log-left { flex: 1; min-width: 0; }
+  .log-date {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 3px;
+  }
+  .log-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .log-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 3px;
+  }
+  .del-btn {
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 15px;
+    transition: color 0.15s;
+    flex-shrink: 0;
+  }
+  .del-btn:hover { color: var(--red); }
+
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .badge-green { background: rgba(94,245,184,0.12); color: var(--accent2); }
+  .badge-amber { background: rgba(245,184,94,0.12); color: var(--accent3); }
+  .badge-blue { background: rgba(94,184,245,0.12); color: #5eb8f5; }
+  .badge-red { background: rgba(245,94,94,0.12); color: var(--red); }
+
+  /* FAST BAR */
+  .fast-bar-track {
+    height: 6px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .fast-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s;
+  }
+
+  /* OVERVIEW SPECIAL */
+  .pb-display {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .pb-big {
+    font-family: var(--font-mono);
+    font-size: 36px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  .pb-unit {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--text3);
+  }
+
+  /* CHECKLIST */
+  .checklist { display: flex; flex-direction: column; gap: 6px; }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--bg3);
+  }
+  .check-item:hover { border-color: var(--border2); }
+  .check-item input[type=checkbox] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+    padding: 0;
+    border: none;
+  }
+  .check-item span {
+    font-size: 13px;
+    color: var(--text);
+    transition: color 0.15s;
+  }
+  .check-item.done span { text-decoration: line-through; color: var(--text3); }
+
+  /* CHART WRAPPER */
+  .chart-wrap { position: relative; width: 100%; height: 200px; }
+
+  /* EMPTY STATE */
+  .empty { font-family: var(--font-mono); font-size: 12px; color: var(--text3); padding: 16px 0; }
+
+  /* TWO COL */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 500px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* CHECKBOX INLINE */
+  .check-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+  }
+  .check-inline input { width: 16px; height: 16px; accent-color: var(--accent); flex-shrink: 0; }
+  .check-inline span { font-size: 13px; color: var(--text2); }
+
+  /* SECTION DIVIDER */
+  .section-sep {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    margin: 20px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-sep::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  /* ANIMATE IN */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .panel.active { animation: fadeUp 0.2s ease; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-logo"><i class="ti ti-bolt"></i> FitTrack</div>
+  <div class="header-date" id="headerDate"></div>
+</header>
+
+<div class="container">
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('overview')"><i class="ti ti-layout-dashboard"></i> Overview</button>
+    <button class="tab" onclick="switchTab('weight')"><i class="ti ti-scale"></i> Berat</button>
+    <button class="tab" onclick="switchTab('nutrition')"><i class="ti ti-salad"></i> Nutrisi</button>
+    <button class="tab" onclick="switchTab('fasting')"><i class="ti ti-clock"></i> Puasa</button>
+    <button class="tab" onclick="switchTab('workout')"><i class="ti ti-run"></i> Workout</button>
+    <button class="tab" onclick="switchTab('suplemen')"><i class="ti ti-pill"></i> Suplemen</button>
+    <button class="tab" onclick="switchTab('sleep')"><i class="ti ti-moon"></i> Sleep</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="panel-overview" class="panel active">
+    <div class="metric-grid">
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-scale"></i> Berat</div>
+        <div class="metric-val" id="ov-weight">—</div>
+        <div class="metric-unit">kg hari ini</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-flame"></i> Kalori</div>
+        <div class="metric-val" id="ov-cals">0</div>
+        <div class="metric-unit">kcal hari ini</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-meat"></i> Protein</div>
+        <div class="metric-val" id="ov-prot">0</div>
+        <div class="metric-unit">gram</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-clock"></i> Puasa</div>
+        <div class="metric-val" id="ov-fast">—</div>
+        <div class="metric-unit">jam terakhir</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-trophy"></i> Running PB</div>
+        <div class="pb-display">
+          <span class="pb-big" id="ov-pb">56:32</span>
+          <span class="pb-unit">10K</span>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-bottom:14px;" id="ov-pb-date">Apr 26, 2026</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Gear aktif</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:3px;">Ortuseight Hyperglide 4.0</div>
+        <div style="font-size:12px;color:var(--text2);">Ortuseight Hyperblast 2.0</div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="justify-content:space-between;">
+          <span><i class="ti ti-checklist"></i> Rutinitas</span>
+          <button class="btn btn-ghost" onclick="openRoutineEditor()" style="padding:4px 10px;font-size:12px;"><i class="ti ti-pencil"></i> Edit</button>
+        </div>
+        <div class="checklist" id="routine-list"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-line"></i> Tren Berat (7 hari)</div>
+      <div class="chart-wrap">
+        <canvas id="weightChart" role="img" aria-label="Tren berat badan 7 hari terakhir">Tren berat badan.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEIGHT -->
+  <div id="panel-weight" class="panel">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-plus"></i> Log Berat Badan</div>
+      <div class="field">
+        <label class="field-label">Tanggal</label>
+        <input type="date" id="weightDate">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Berat (kg)</label>
+          <input type="number" id="weightVal" min="40" max="200" step="0.1" placeholder="62.0">
+        </div>
+        <div class="field">
+          <label class="field-label">Dead Hang (detik)</label>
+          <input type="number" id="gripVal" min="0" max="300" step="1" placeholder="40">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Catatan</label>
+        <input type="text" id="weightNote" placeholder="post-workout, bangun tidur, dll...">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="addWeight()"><i class="ti ti-device-floppy"></i> Simpan</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-list"></i> Riwayat Berat</div>
+      <div class="log-list" id="weight-log"></div>
+    </div>
+  </div>
+
+  <!-- NUTRITION -->
+  <div id="panel-nutrition" class="panel">
+    <div class="metric-grid">
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-flame"></i> Kalori</div>
+        <div class="metric-val" id="n-cals">0</div>
+        <div class="metric-unit">kcal</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-meat"></i> Protein</div>
+        <div class="metric-val" id="n-prot">0</div>
+        <div class="metric-unit">gram</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-bread"></i> Karbo</div>
+        <div class="metric-val" id="n-carb">0</div>
+        <div class="metric-unit">gram</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-leaf"></i> Serat</div>
+        <div class="metric-val" id="n-fiber">0</div>
+        <div class="metric-unit">gram</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-plus"></i> Log Makanan / Suplemen</div>
+      <div class="field">
+        <label class="field-label">Tanggal</label>
+        <input type="date" id="foodDate">
+      </div>
+      <div class="field">
+        <label class="field-label">Quick-add preset</label>
+        <select id="quickFood" onchange="quickFill()">
+          <option value="">— pilih preset —</option>
+          <option value="gado">Gado-Gado Custom (2 telur)</option>
+          <option value="whey1">Whey Protein (1 scoop)</option>
+          <option value="whey2">Whey Protein (2 scoop)</option>
+          <option value="creatine">Creatine / Cretolytes</option>
+          <option value="magnesium">Magnesium Glycinate</option>
+          <option value="omega3">Omega-3</option>
+          <option value="vitd">Vitamin D3/K2</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Nama makanan / suplemen</label>
+        <input type="text" id="foodName" placeholder="nama makanan...">
+      </div>
+      <div class="field-row-4">
+        <div class="field">
+          <label class="field-label">Kalori</label>
+          <input type="number" id="foodCal" min="0" step="1" placeholder="0">
+        </div>
+        <div class="field">
+          <label class="field-label">Protein (g)</label>
+          <input type="number" id="foodProt" min="0" step="0.1" placeholder="0">
+        </div>
+        <div class="field">
+          <label class="field-label">Karbo (g)</label>
+          <input type="number" id="foodCarb" min="0" step="0.1" placeholder="0">
+        </div>
+        <div class="field">
+          <label class="field-label">Serat (g)</label>
+          <input type="number" id="foodFiber" min="0" step="0.1" placeholder="0">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="addFood()"><i class="ti ti-plus"></i> Tambah</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-list"></i> Log Makanan Hari Ini</div>
+      <div class="log-list" id="food-log"></div>
+    </div>
+  </div>
+
+  <!-- FASTING -->
+  <div id="panel-fasting" class="panel">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-clock"></i> Tracker Intermittent Fasting</div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Mulai puasa</label>
+          <input type="datetime-local" id="fastStart">
+        </div>
+        <div class="field">
+          <label class="field-label">Akhir puasa</label>
+          <input type="datetime-local" id="fastEnd">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Target durasi</label>
+        <select id="fastTarget">
+          <option value="13">13 jam (minimum)</option>
+          <option value="14">14 jam</option>
+          <option value="15">15 jam</option>
+          <option value="16" selected>16 jam (maksimum)</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="logFast()"><i class="ti ti-device-floppy"></i> Log Puasa</button>
+        <button class="btn btn-ghost" onclick="setFastNow('fastStart')"><i class="ti ti-player-play"></i> Mulai sekarang</button>
+        <button class="btn btn-ghost" onclick="setFastNow('fastEnd')"><i class="ti ti-player-stop"></i> Buka sekarang</button>
+      </div>
+    </div>
+    <!-- LIVE TIMER -->
+    <div class="card" id="start-timer-card">
+      <div class="card-title"><i class="ti ti-clock-play"></i> Timer Puasa Live</div>
+      <div style="text-align:center;padding:8px 0 4px;">
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text3);margin-bottom:12px;">Mulai countdown real-time puasa lo</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;">
+          <select id="timerTarget" style="width:auto;font-size:13px;">
+            <option value="13">Target 13 jam</option>
+            <option value="14">Target 14 jam</option>
+            <option value="15">Target 15 jam</option>
+            <option value="16" selected>Target 16 jam</option>
+          </select>
+          <button class="btn btn-primary" onclick="startLiveTimer()"><i class="ti ti-player-play"></i> Mulai Timer</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" id="live-timer-card" style="display:none;">
+      <div class="card-title"><i class="ti ti-clock-play"></i> Timer Puasa Live</div>
+      <div style="text-align:center;padding:12px 0;">
+        <div style="font-family:var(--font-mono);font-size:48px;font-weight:500;color:var(--accent);letter-spacing:0.05em;" id="live-timer-display">00:00:00</div>
+        <div style="font-family:var(--font-mono);font-size:12px;color:var(--text3);margin-top:8px;" id="live-timer-sub"></div>
+        <div style="margin-top:16px;">
+          <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden;max-width:320px;margin:0 auto;">
+            <div id="live-timer-bar" style="height:100%;border-radius:4px;background:var(--accent);transition:width 1s;width:0%;"></div>
+          </div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-top:6px;" id="live-timer-pct">0% dari target</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:8px;">
+        <button class="btn btn-ghost" onclick="stopLiveTimer()"><i class="ti ti-player-stop"></i> Stop & Log</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-history"></i> Riwayat Puasa</div>
+      <div class="log-list" id="fast-log"></div>
+    </div>
+  </div>
+
+  <!-- WORKOUT -->
+  <div id="panel-workout" class="panel">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-plus"></i> Log Workout / Lari</div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Tanggal</label>
+          <input type="date" id="wDate">
+        </div>
+        <div class="field">
+          <label class="field-label">RPE (1–10)</label>
+          <input type="number" id="wRpe" min="1" max="10" step="1" placeholder="7">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Tipe sesi</label>
+        <select id="wType" onchange="onWTypeChange()">
+          <option value="upper_push">Upper Push — Dada / Bahu / Tricep</option>
+          <option value="upper_pull">Upper Pull — Punggung / Bicep / Dead Hang</option>
+          <option value="leg">Leg Day — Quads / Hamstrings / Calves</option>
+          <option value="run_interval">Lari — Norwegian 4x4 Intervals</option>
+          <option value="run_tempo">Lari — Broken Tempo / Interval Cruise</option>
+          <option value="run_aerobic">Lari — Aerobic Threshold</option>
+          <option value="run_easy">Lari — Easy / Recovery Run</option>
+          <option value="walk_postlunch">Walking — Post-Lunch (Glucose Disposal)</option>
+          <option value="walk_easy">Walking — Easy / Leisure</option>
+          <option value="walk_morning">Walking — Morning Sunlight Walk</option>
+        </select>
+      </div>
+
+      <div id="run-fields" style="display:none;">
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Jarak (km)</label>
+            <input type="number" id="wDist" min="0" step="0.01" placeholder="10.0">
+          </div>
+          <div class="field">
+            <label class="field-label">Waktu (mm:ss)</label>
+            <input type="text" id="wTime" placeholder="56:32">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Pace (min/km) — auto</label>
+            <input type="text" id="wPace" placeholder="—" readonly style="color:var(--text3);">
+          </div>
+          <div class="field">
+            <label class="field-label">Sepatu / Gear</label>
+            <select id="wGear">
+              <option>Ortuseight Hyperglide 4.0</option>
+              <option>Ortuseight Hyperblast 2.0</option>
+              <option>Lainnya</option>
+            </select>
+          </div>
+        </div>
+        <div class="check-inline">
+          <input type="checkbox" id="wPB">
+          <span>Tandai sebagai Personal Best baru</span>
+        </div>
+      </div>
+
+      <div id="gym-fields">
+        <div class="field">
+          <label class="field-label">Dead Hang (detik) — khusus Pull Day</label>
+          <input type="number" id="wHang" min="0" step="1" placeholder="40">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Catatan</label>
+        <input type="text" id="wNote" placeholder="PR baru, observasi, perasaan, dll...">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="addWorkout()"><i class="ti ti-device-floppy"></i> Simpan</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-list"></i> Log Workout</div>
+      <div class="log-list" id="workout-log"></div>
+    </div>
+  </div>
+
+  <!-- SUPLEMEN -->
+  <div id="panel-suplemen" class="panel">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-pill"></i> Checklist Suplemen Harian</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-bottom:14px;">Reset otomatis tiap hari baru</div>
+      <div class="checklist" id="suplemen-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;">
+        <span><i class="ti ti-settings"></i> Kelola Suplemen</span>
+        <button class="btn btn-ghost" onclick="openSuplemenEditor()" style="padding:4px 10px;font-size:12px;"><i class="ti ti-pencil"></i> Edit</button>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:12px;color:var(--text3);">Tambah atau hapus suplemen dari checklist.</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-bar"></i> Konsistensi 7 Hari</div>
+      <div id="suplemen-streak"></div>
+    </div>
+  </div>
+
+  <!-- SLEEP -->
+  <div id="panel-sleep" class="panel">
+    <div class="metric-grid">
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-moon"></i> Tidur terakhir</div>
+        <div class="metric-val" id="sl-last">—</div>
+        <div class="metric-unit">jam</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-brain"></i> NSDR terakhir</div>
+        <div class="metric-val" id="sl-nsdr">—</div>
+        <div class="metric-unit">menit</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-chart-line"></i> Rata-rata tidur</div>
+        <div class="metric-val" id="sl-avg">—</div>
+        <div class="metric-unit">jam (7 hari)</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label"><i class="ti ti-star"></i> Kualitas rata-rata</div>
+        <div class="metric-val" id="sl-qual">—</div>
+        <div class="metric-unit">/ 5</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-plus"></i> Log Sleep & NSDR</div>
+      <div class="field">
+        <label class="field-label">Tanggal</label>
+        <input type="date" id="sleepDate">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Jam tidur</label>
+          <input type="time" id="sleepBed">
+        </div>
+        <div class="field">
+          <label class="field-label">Jam bangun</label>
+          <input type="time" id="sleepWake">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Kualitas tidur (1–5)</label>
+          <select id="sleepQual">
+            <option value="1">1 — Buruk</option>
+            <option value="2">2 — Kurang</option>
+            <option value="3" selected>3 — Cukup</option>
+            <option value="4">4 — Bagus</option>
+            <option value="5">5 — Sempurna</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Durasi NSDR (menit)</label>
+          <input type="number" id="sleepNsdr" min="0" step="5" placeholder="20">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Catatan</label>
+        <input type="text" id="sleepNote" placeholder="mimpi, gangguan tidur, dll...">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="addSleep()"><i class="ti ti-device-floppy"></i> Simpan</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-list"></i> Riwayat Sleep & NSDR</div>
+      <div class="log-list" id="sleep-log"></div>
+    </div>
+  </div>
+
+
+</div>
+
+<!-- ROUTINE EDITOR MODAL -->
+<div id="routine-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);width:100%;max-width:480px;padding:24px;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="font-size:15px;font-weight:600;color:var(--text);">Edit Rutinitas</div>
+      <button onclick="closeRoutineEditor()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="routine-editor-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+    <div style="display:flex;gap:8px;margin-bottom:20px;">
+      <input type="text" id="routine-new-input" placeholder="Tambah rutinitas baru..." style="flex:1;">
+      <button class="btn btn-primary" onclick="addRoutineItem()" style="flex-shrink:0;"><i class="ti ti-plus"></i> Tambah</button>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn btn-ghost" onclick="closeRoutineEditor()">Batal</button>
+      <button class="btn btn-primary" onclick="saveRoutineEditor()"><i class="ti ti-device-floppy"></i> Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const today = () => new Date().toISOString().split('T')[0];
+const fmt = d => new Date(d + 'T00:00:00').toLocaleDateString('id-ID', {day:'numeric',month:'short',year:'numeric'});
+const fmtDT = s => new Date(s).toLocaleString('id-ID', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+
+let state = {
+  weights: [],
+  foods: [],
+  fasts: [],
+  workouts: [],
+  routine: [
+    {id:'r1', label:'Workout pagi (~4:20 AM)', done: false},
+    {id:'r2', label:'Sunlight exposure pagi', done: false},
+    {id:'r3', label:'NSDR / deep rest', done: false},
+    {id:'r4', label:'Intermittent fasting ≥13 jam', done: false},
+    {id:'r5', label:'Post-lunch walking', done: false},
+    {id:'r6', label:'Suplemen harian (Creatine, Mg, Omega-3, D3)', done: false}
+  ],
+  pb: {time:'56:32', date:'Apr 26, 2026'},
+  routineDate: '',
+  suplemen: [
+    {id:'s1', label:'Creatine / Cretolytes', done:false},
+    {id:'s2', label:'Magnesium Glycinate (BioEmblem)', done:false},
+    {id:'s3', label:'Omega-3', done:false},
+    {id:'s4', label:'Vitamin D3/K2', done:false},
+    {id:'s5', label:'Whey Protein', done:false}
+  ],
+  suplemenDate: '',
+  suplemenLog: [],
+  sleeps: [],
+  timerStart: null,
+  timerTarget: 16
+};
+
+function save() {
+  try { localStorage.setItem('fittrack_v2', JSON.stringify(state)); } catch(e) {}
+}
+function load() {
+  try {
+    const d = localStorage.getItem('fittrack_v2');
+    if (d) {
+      const parsed = JSON.parse(d);
+      state = Object.assign(state, parsed);
+      if (!parsed.routine) state.routine = state.routine;
+    }
+  } catch(e) {}
+  // reset routine jika hari baru
+  if (state.routineDate !== today()) {
+    state.routine.forEach(r => r.done = false);
+    state.routineDate = today();
+    save();
+  }
+  // reset suplemen jika hari baru
+  if (!state.suplemenDate) state.suplemenDate = '';
+  if (!state.suplemen) state.suplemen = [
+    {id:'s1', label:'Creatine / Cretolytes', done:false},
+    {id:'s2', label:'Magnesium Glycinate (BioEmblem)', done:false},
+    {id:'s3', label:'Omega-3', done:false},
+    {id:'s4', label:'Vitamin D3/K2', done:false},
+    {id:'s5', label:'Whey Protein', done:false}
+  ];
+  if (!state.suplemenLog) state.suplemenLog = [];
+  if (!state.sleeps) state.sleeps = [];
+  if (state.suplemenDate !== today()) {
+    // log yesterday's completion before reset
+    if (state.suplemenDate) {
+      const doneCount = state.suplemen.filter(s => s.done).length;
+      state.suplemenLog.push({ date: state.suplemenDate, done: doneCount, total: state.suplemen.length });
+    }
+    state.suplemen.forEach(s => s.done = false);
+    state.suplemenDate = today();
+    save();
+  }
+}
+load();
+
+// Set dates
+document.getElementById('weightDate').value = today();
+document.getElementById('foodDate').value = today();
+document.getElementById('wDate').value = today();
+if(document.getElementById('sleepDate')) document.getElementById('sleepDate').value = today();
+document.getElementById('headerDate').textContent = new Date().toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+// TABS
+function switchTab(id) {
+  const order = ['overview','weight','nutrition','fasting','workout','suplemen','sleep'];
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', order[i] === id));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  if (id === 'overview') { renderOverview(); setTimeout(renderWeightChart, 50); }
+  if (id === 'weight') renderWeightLog();
+  if (id === 'nutrition') { renderFoodLog(); updateNutritionTotals(today()); }
+  if (id === 'fasting') { renderFastLog(); restoreTimerUI(); }
+  if (id === 'workout') renderWorkoutLog();
+  if (id === 'suplemen') { renderSuplemenList(); renderSuplemenStreak(); }
+  if (id === 'sleep') { renderSleepLog(); updateSleepMetrics(); }
+}
+
+// PRESETS
+const presets = {
+  gado:     {name:'Gado-Gado Custom (2 telur)', cal:320, prot:18, carb:22, fiber:4},
+  whey1:    {name:'Whey Protein 1 scoop', cal:120, prot:24, carb:3, fiber:0},
+  whey2:    {name:'Whey Protein 2 scoop', cal:240, prot:48, carb:6, fiber:0},
+  creatine: {name:'Creatine / Cretolytes', cal:5, prot:0, carb:1, fiber:0},
+  magnesium:{name:'Magnesium Glycinate (BioEmblem)', cal:0, prot:0, carb:0, fiber:0},
+  omega3:   {name:'Omega-3', cal:10, prot:0, carb:0, fiber:0},
+  vitd:     {name:'Vitamin D3/K2', cal:0, prot:0, carb:0, fiber:0}
+};
+
+function quickFill() {
+  const key = document.getElementById('quickFood').value;
+  if (!key || !presets[key]) return;
+  const p = presets[key];
+  document.getElementById('foodName').value = p.name;
+  document.getElementById('foodCal').value = p.cal;
+  document.getElementById('foodProt').value = p.prot;
+  document.getElementById('foodCarb').value = p.carb;
+  document.getElementById('foodFiber').value = p.fiber;
+}
+
+// NUTRITION
+function addFood() {
+  const name = document.getElementById('foodName').value.trim();
+  if (!name) return;
+  state.foods.push({
+    id: Date.now(),
+    date: document.getElementById('foodDate').value,
+    name,
+    cal: +document.getElementById('foodCal').value || 0,
+    prot: +document.getElementById('foodProt').value || 0,
+    carb: +document.getElementById('foodCarb').value || 0,
+    fiber: +document.getElementById('foodFiber').value || 0
+  });
+  save();
+  ['foodName','foodCal','foodProt','foodCarb','foodFiber'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('quickFood').value = '';
+  renderFoodLog();
+  updateNutritionTotals(document.getElementById('foodDate').value);
+}
+
+function renderFoodLog() {
+  const d = document.getElementById('foodDate').value;
+  const foods = state.foods.filter(f => f.date === d);
+  const el = document.getElementById('food-log');
+  if (!foods.length) { el.innerHTML = '<div class="empty">Belum ada makanan untuk tanggal ini.</div>'; return; }
+  el.innerHTML = foods.map(f => `
+    <div class="log-item">
+      <div class="log-left">
+        <div class="log-name">${f.name}</div>
+        <div class="log-meta">${f.cal} kcal &nbsp;·&nbsp; P ${f.prot}g &nbsp;·&nbsp; K ${f.carb}g &nbsp;·&nbsp; F ${f.fiber}g</div>
+      </div>
+      <button class="del-btn" onclick="delFood(${f.id})" title="Hapus"><i class="ti ti-trash"></i></button>
+    </div>`).join('');
+}
+
+function delFood(id) {
+  state.foods = state.foods.filter(f => f.id !== id);
+  save(); renderFoodLog();
+  updateNutritionTotals(document.getElementById('foodDate').value);
+}
+
+function updateNutritionTotals(d) {
+  const foods = state.foods.filter(f => f.date === d);
+  const tot = foods.reduce((a,f) => ({cal:a.cal+f.cal, prot:a.prot+f.prot, carb:a.carb+f.carb, fiber:a.fiber+f.fiber}), {cal:0,prot:0,carb:0,fiber:0});
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = Math.round(val); };
+  set('n-cals', tot.cal); set('n-prot', tot.prot); set('n-carb', tot.carb); set('n-fiber', tot.fiber);
+  set('ov-cals', tot.cal); set('ov-prot', tot.prot);
+}
+
+// WEIGHT
+function addWeight() {
+  const val = +document.getElementById('weightVal').value;
+  if (!val) return;
+  const item = {
+    id: Date.now(),
+    date: document.getElementById('weightDate').value,
+    weight: val,
+    grip: +document.getElementById('gripVal').value || null,
+    note: document.getElementById('weightNote').value.trim()
+  };
+  state.weights = state.weights.filter(w => w.date !== item.date);
+  state.weights.push(item);
+  state.weights.sort((a,b) => a.date.localeCompare(b.date));
+  save();
+  ['weightVal','gripVal','weightNote'].forEach(id => document.getElementById(id).value='');
+  renderWeightLog(); updateOverviewWeight();
+}
+
+function renderWeightLog() {
+  const el = document.getElementById('weight-log');
+  if (!state.weights.length) { el.innerHTML = '<div class="empty">Belum ada data berat.</div>'; return; }
+  el.innerHTML = [...state.weights].reverse().map(w => `
+    <div class="log-item">
+      <div class="log-left">
+        <div class="log-date">${fmt(w.date)}</div>
+        <div class="log-name">${w.weight} kg ${w.grip ? '&nbsp;·&nbsp; Dead hang: ' + w.grip + 's' : ''}</div>
+        ${w.note ? `<div class="log-meta">${w.note}</div>` : ''}
+      </div>
+      <button class="del-btn" onclick="delWeight(${w.id})" title="Hapus"><i class="ti ti-trash"></i></button>
+    </div>`).join('');
+}
+
+function delWeight(id) {
+  state.weights = state.weights.filter(w => w.id !== id);
+  save(); renderWeightLog(); updateOverviewWeight();
+}
+
+function updateOverviewWeight() {
+  const last = state.weights[state.weights.length - 1];
+  const el = document.getElementById('ov-weight');
+  if (el) el.textContent = last ? last.weight : '—';
+  const hw = document.getElementById('headerWeight');
+  if (hw) hw.textContent = last ? last.weight + ' kg' : '';
+}
+
+// FASTING
+function setFastNow(id) {
+  const now = new Date();
+  document.getElementById(id).value = now.toISOString().slice(0,16);
+}
+
+function logFast() {
+  const s = document.getElementById('fastStart').value;
+  const e = document.getElementById('fastEnd').value;
+  if (!s || !e) return;
+  const hours = (new Date(e) - new Date(s)) / 3600000;
+  if (hours <= 0) return;
+  state.fasts.push({ id: Date.now(), start: s, end: e, hours, target: +document.getElementById('fastTarget').value });
+  save(); renderFastLog();
+  const ov = document.getElementById('ov-fast');
+  if (ov) ov.textContent = hours.toFixed(1);
+}
+
+function renderFastLog() {
+  const el = document.getElementById('fast-log');
+  if (!state.fasts.length) { el.innerHTML = '<div class="empty">Belum ada log puasa.</div>'; return; }
+  el.innerHTML = [...state.fasts].reverse().map(f => {
+    const met = f.hours >= f.target;
+    const pct = Math.min(100, Math.round(f.hours / f.target * 100));
+    return `<div class="log-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
+        <div>
+          <div class="log-date">${fmtDT(f.start)} → ${fmtDT(f.end)}</div>
+          <div class="log-name">${f.hours.toFixed(1)} jam <span style="font-size:12px;color:var(--text3);">/ target ${f.target} jam</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="badge ${met?'badge-green':'badge-amber'}">${met?'✓ Met':'Kurang'}</span>
+          <button class="del-btn" onclick="delFast(${f.id})" title="Hapus"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+      <div style="width:100%;">
+        <div class="fast-bar-track"><div class="fast-bar-fill" style="width:${pct}%;background:${met?'#5ef5b8':'#f5b85e'};"></div></div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-top:4px;">${pct}% dari target</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function delFast(id) { state.fasts = state.fasts.filter(f => f.id !== id); save(); renderFastLog(); }
+
+// WORKOUT
+const wLabels = {
+  upper_push:'Upper Push', upper_pull:'Upper Pull', leg:'Leg Day',
+  run_interval:'Lari — Norwegian 4x4', run_tempo:'Lari — Broken Tempo',
+  run_aerobic:'Lari — Aerobic Threshold', run_easy:'Lari — Easy Run',
+  walk_postlunch:'Walking — Post-Lunch', walk_easy:'Walking — Easy', walk_morning:'Walking — Morning'
+};
+const runTypes = new Set(['run_interval','run_tempo','run_aerobic','run_easy','walk_postlunch','walk_easy','walk_morning']);
+
+function onWTypeChange() {
+  const t = document.getElementById('wType').value;
+  document.getElementById('run-fields').style.display = runTypes.has(t) ? '' : 'none';
+  document.getElementById('gym-fields').style.display = runTypes.has(t) ? 'none' : '';
+}
+
+document.getElementById('wTime').addEventListener('input', calcPace);
+document.getElementById('wDist').addEventListener('input', calcPace);
+function calcPace() {
+  const t = document.getElementById('wTime').value.trim();
+  const d = +document.getElementById('wDist').value;
+  if (!t || !d) return;
+  const parts = t.split(':');
+  if (parts.length !== 2) return;
+  const totalMin = +parts[0] + +parts[1] / 60;
+  const pm = Math.floor(totalMin / d);
+  const ps = Math.round(((totalMin / d) - pm) * 60);
+  document.getElementById('wPace').value = pm + ':' + String(ps).padStart(2,'0');
+}
+
+function addWorkout() {
+  const type = document.getElementById('wType').value;
+  const isRun = runTypes.has(type);
+  const item = {
+    id: Date.now(), date: document.getElementById('wDate').value,
+    type, label: wLabels[type],
+    rpe: +document.getElementById('wRpe').value || null,
+    note: document.getElementById('wNote').value.trim()
+  };
+  if (isRun) {
+    item.dist = +document.getElementById('wDist').value || null;
+    item.time = document.getElementById('wTime').value.trim();
+    item.pace = document.getElementById('wPace').value;
+    item.gear = document.getElementById('wGear').value;
+    item.isPB = document.getElementById('wPB').checked;
+    if (item.isPB && item.time) {
+      state.pb = { time: item.time, date: fmt(item.date) };
+      const pb = document.getElementById('ov-pb'); if(pb) pb.textContent = state.pb.time;
+      const pbd = document.getElementById('ov-pb-date'); if(pbd) pbd.textContent = state.pb.date;
+    }
+  } else {
+    item.hang = +document.getElementById('wHang').value || null;
+  }
+  state.workouts.push(item);
+  save();
+  ['wRpe','wNote','wDist','wTime','wPace','wHang'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('wPB').checked = false;
+  renderWorkoutLog();
+}
+
+function renderWorkoutLog() {
+  const el = document.getElementById('workout-log');
+  if (!state.workouts.length) { el.innerHTML = '<div class="empty">Belum ada workout.</div>'; return; }
+  el.innerHTML = [...state.workouts].reverse().map(w => {
+    const isRun = runTypes.has(w.type);
+    const meta = isRun
+      ? [w.dist?w.dist+'km':null, w.time||null, w.pace?'@'+w.pace+'/km':null, w.gear||null].filter(Boolean).join(' · ')
+      : [w.hang?'Dead hang: '+w.hang+'s':null].filter(Boolean).join(' · ');
+    const badgeCls = isRun ? 'badge-blue' : (w.type==='leg'?'badge-amber':'badge-green');
+    return `<div class="log-item">
+      <div class="log-left">
+        <div class="log-date">${fmt(w.date)}${w.rpe?' · RPE '+w.rpe:''}</div>
+        <div class="log-name">${w.label}${w.isPB?' 🏅':''}</div>
+        ${meta?`<div class="log-meta">${meta}</div>`:''}
+        ${w.note?`<div class="log-meta" style="color:var(--text3)">${w.note}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        <span class="badge ${badgeCls}">${isRun?'Run':'Gym'}</span>
+        <button class="del-btn" onclick="editWorkout(${w.id})" title="Edit" style="color:var(--text3);"><i class="ti ti-pencil"></i></button>
+      <button class="del-btn" onclick="delWorkout(${w.id})" title="Hapus"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function delWorkout(id) { state.workouts = state.workouts.filter(w => w.id !== id); save(); renderWorkoutLog(); }
+
+// ROUTINE
+function renderRoutine() {
+  const el = document.getElementById('routine-list');
+  if (!el) return;
+  el.innerHTML = state.routine.map(r => `
+    <label class="check-item ${r.done?'done':''}">
+      <input type="checkbox" ${r.done?'checked':''} onchange="toggleRoutine('${r.id}')">
+      <span>${r.label}</span>
+    </label>`).join('');
+}
+
+function toggleRoutine(id) {
+  const r = state.routine.find(x => x.id === id);
+  if (r) { r.done = !r.done; save(); renderRoutine(); }
+}
+
+// WEIGHT CHART
+let chartInst = null;
+function renderWeightChart() {
+  const canvas = document.getElementById('weightChart');
+  if (!canvas) return;
+  if (chartInst) { chartInst.destroy(); chartInst = null; }
+  const recent = state.weights.slice(-10);
+  if (!recent.length) {
+    canvas.parentElement.innerHTML = '<div class="empty" style="text-align:center;padding:40px 0;">Log berat untuk melihat grafik tren.</div>';
+    return;
+  }
+  chartInst = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: recent.map(w => fmt(w.date)),
+      datasets: [{
+        label: 'Berat (kg)',
+        data: recent.map(w => w.weight),
+        borderColor: '#b8f55e',
+        backgroundColor: 'rgba(184,245,94,0.08)',
+        tension: 0.4, fill: true,
+        pointRadius: 5, pointBackgroundColor: '#b8f55e',
+        pointBorderColor: '#0e0f11', pointBorderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          ticks: { color: '#5a5a56', font: { size: 11, family: "'DM Mono', monospace" } }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#5a5a56', font: { size: 10, family: "'DM Mono', monospace" }, maxRotation: 30 }
+        }
+      }
+    }
+  });
+}
+
+// OVERVIEW
+function renderOverview() {
+  updateOverviewWeight();
+  updateNutritionTotals(today());
+  renderRoutine();
+  const pb = document.getElementById('ov-pb'); if(pb) pb.textContent = state.pb.time;
+  const pbd = document.getElementById('ov-pb-date'); if(pbd) pbd.textContent = state.pb.date;
+  const lastFast = state.fasts[state.fasts.length-1];
+  const ovf = document.getElementById('ov-fast');
+  if(ovf) ovf.textContent = lastFast ? lastFast.hours.toFixed(1) : '—';
+}
+
+onWTypeChange();
+renderOverview();
+setTimeout(renderWeightChart, 100);
+
+// ROUTINE EDITOR
+let routineDraft = [];
+
+function openRoutineEditor() {
+  routineDraft = state.routine.map(r => ({...r}));
+  renderRoutineEditorList();
+  const modal = document.getElementById('routine-modal');
+  modal.style.display = 'flex';
+}
+
+function closeRoutineEditor() {
+  document.getElementById('routine-modal').style.display = 'none';
+  document.getElementById('routine-new-input').value = '';
+}
+
+function renderRoutineEditorList() {
+  const el = document.getElementById('routine-editor-list');
+  if (!routineDraft.length) {
+    el.innerHTML = '<div style="font-family:var(--font-mono);font-size:12px;color:var(--text3);">Belum ada rutinitas.</div>';
+    return;
+  }
+  el.innerHTML = routineDraft.map((r, i) => `
+    <div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;">
+      <i class="ti ti-grip-vertical" style="color:var(--text3);font-size:14px;flex-shrink:0;"></i>
+      <input type="text" value="${r.label}" onchange="routineDraft[${i}].label=this.value"
+        style="flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font-display);font-size:13px;padding:0;">
+      <button onclick="routineDraft.splice(${i},1);renderRoutineEditorList();"
+        style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;flex-shrink:0;padding:0 2px;">
+        <i class="ti ti-trash"></i>
+      </button>
+    </div>`).join('');
+}
+
+function addRoutineItem() {
+  const input = document.getElementById('routine-new-input');
+  const label = input.value.trim();
+  if (!label) return;
+  routineDraft.push({ id: 'r' + Date.now(), label, done: false });
+  input.value = '';
+  renderRoutineEditorList();
+}
+
+function saveRoutineEditor() {
+  state.routine = routineDraft.map(r => ({...r, done: false}));
+  state.routineDate = today();
+  save();
+  renderRoutine();
+  closeRoutineEditor();
+}
+
+// Close modal on backdrop click
+document.getElementById('routine-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeRoutineEditor();
+});
+
+// Enter key to add routine
+document.getElementById('routine-new-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') addRoutineItem();
+});
+
+// ===================== LIVE FASTING TIMER =====================
+let timerInterval = null;
+
+function restoreTimerUI() {
+  if (state.timerStart) {
+    document.getElementById('start-timer-card').style.display = 'none';
+    document.getElementById('live-timer-card').style.display = '';
+    startTimerTick();
+  }
+}
+
+function startLiveTimer() {
+  state.timerStart = Date.now();
+  state.timerTarget = +document.getElementById('timerTarget').value;
+  save();
+  document.getElementById('start-timer-card').style.display = 'none';
+  document.getElementById('live-timer-card').style.display = '';
+  startTimerTick();
+}
+
+function startTimerTick() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (!state.timerStart) return;
+    const elapsed = (Date.now() - state.timerStart) / 1000;
+    const target = state.timerTarget * 3600;
+    const h = Math.floor(elapsed / 3600);
+    const m = Math.floor((elapsed % 3600) / 60);
+    const s = Math.floor(elapsed % 60);
+    const disp = document.getElementById('live-timer-display');
+    const sub = document.getElementById('live-timer-sub');
+    const bar = document.getElementById('live-timer-bar');
+    const pct = document.getElementById('live-timer-pct');
+    if (!disp) { clearInterval(timerInterval); return; }
+    disp.textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    const progress = Math.min(100, Math.round(elapsed / target * 100));
+    bar.style.width = progress + '%';
+    bar.style.background = progress >= 100 ? '#5ef5b8' : '#b8f55e';
+    pct.textContent = progress + '% dari target ' + state.timerTarget + ' jam';
+    if (elapsed >= target) {
+      sub.textContent = '✓ Target tercapai!';
+      sub.style.color = '#5ef5b8';
+    } else {
+      const rem = target - elapsed;
+      const rh = Math.floor(rem / 3600);
+      const rm = Math.floor((rem % 3600) / 60);
+      sub.textContent = rh + ' jam ' + rm + ' menit lagi';
+      sub.style.color = '';
+    }
+  }, 1000);
+}
+
+function stopLiveTimer() {
+  if (!state.timerStart) return;
+  clearInterval(timerInterval);
+  const elapsed = (Date.now() - state.timerStart) / 3600000;
+  // auto-log
+  state.fasts.push({ id: Date.now(), start: new Date(state.timerStart).toISOString().slice(0,16), end: new Date().toISOString().slice(0,16), hours: elapsed, target: state.timerTarget });
+  state.timerStart = null;
+  save();
+  document.getElementById('live-timer-card').style.display = 'none';
+  document.getElementById('start-timer-card').style.display = '';
+  renderFastLog();
+  const ovf = document.getElementById('ov-fast');
+  if (ovf) ovf.textContent = elapsed.toFixed(1);
+}
+
+// ===================== SUPLEMEN =====================
+function renderSuplemenList() {
+  const el = document.getElementById('suplemen-list');
+  if (!el) return;
+  el.innerHTML = state.suplemen.map(s => `
+    <label class="check-item ${s.done?'done':''}">
+      <input type="checkbox" ${s.done?'checked':''} onchange="toggleSuplemen('${s.id}')">
+      <span>${s.label}</span>
+    </label>`).join('');
+}
+
+function toggleSuplemen(id) {
+  const s = state.suplemen.find(x => x.id === id);
+  if (s) { s.done = !s.done; save(); renderSuplemenList(); }
+}
+
+function renderSuplemenStreak() {
+  const el = document.getElementById('suplemen-streak');
+  if (!el) return;
+  const recent = [...state.suplemenLog].slice(-7);
+  if (!recent.length) { el.innerHTML = '<div class="empty">Belum ada data konsistensi.</div>'; return; }
+  el.innerHTML = recent.map(l => {
+    const pct = Math.round(l.done / l.total * 100);
+    const col = pct === 100 ? '#5ef5b8' : pct >= 50 ? '#b8f55e' : '#f55e5e';
+    return `<div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-bottom:4px;">
+        <span>${fmt(l.date)}</span><span style="color:${col}">${l.done}/${l.total} suplemen</span>
+      </div>
+      <div style="height:6px;background:var(--bg);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:${col};border-radius:4px;"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Suplemen editor
+let suplemenDraft = [];
+function openSuplemenEditor() {
+  suplemenDraft = state.suplemen.map(s => ({...s}));
+  const modal = document.getElementById('suplemen-modal');
+  renderSuplemenEditorList();
+  modal.style.display = 'flex';
+}
+function closeSuplemenEditor() {
+  document.getElementById('suplemen-modal').style.display = 'none';
+  document.getElementById('suplemen-new-input').value = '';
+}
+function renderSuplemenEditorList() {
+  const el = document.getElementById('suplemen-editor-list');
+  el.innerHTML = suplemenDraft.map((s,i) => `
+    <div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;">
+      <input type="text" value="${s.label}" onchange="suplemenDraft[${i}].label=this.value"
+        style="flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font-display);font-size:13px;padding:0;">
+      <button onclick="suplemenDraft.splice(${i},1);renderSuplemenEditorList();"
+        style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;padding:0 2px;">
+        <i class="ti ti-trash"></i>
+      </button>
+    </div>`).join('');
+}
+function addSuplemenItem() {
+  const inp = document.getElementById('suplemen-new-input');
+  const label = inp.value.trim();
+  if (!label) return;
+  suplemenDraft.push({id:'s'+Date.now(), label, done:false});
+  inp.value = '';
+  renderSuplemenEditorList();
+}
+function saveSuplemenEditor() {
+  state.suplemen = suplemenDraft.map(s => ({...s, done:false}));
+  save(); renderSuplemenList(); closeSuplemenEditor();
+}
+
+// ===================== SLEEP =====================
+function addSleep() {
+  const bed = document.getElementById('sleepBed').value;
+  const wake = document.getElementById('sleepWake').value;
+  const date = document.getElementById('sleepDate').value;
+  if (!bed || !wake) return;
+  // calc duration handling overnight
+  let bedMin = parseInt(bed.split(':')[0])*60 + parseInt(bed.split(':')[1]);
+  let wakeMin = parseInt(wake.split(':')[0])*60 + parseInt(wake.split(':')[1]);
+  if (wakeMin < bedMin) wakeMin += 1440; // overnight
+  const hours = (wakeMin - bedMin) / 60;
+  state.sleeps.push({
+    id: Date.now(), date,
+    bed, wake, hours: Math.round(hours * 10) / 10,
+    qual: +document.getElementById('sleepQual').value,
+    nsdr: +document.getElementById('sleepNsdr').value || 0,
+    note: document.getElementById('sleepNote').value.trim()
+  });
+  save();
+  ['sleepBed','sleepWake','sleepNsdr','sleepNote'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('sleepQual').value = '3';
+  renderSleepLog(); updateSleepMetrics();
+}
+
+function renderSleepLog() {
+  const el = document.getElementById('sleep-log');
+  if (!el) return;
+  if (!state.sleeps.length) { el.innerHTML = '<div class="empty">Belum ada data sleep.</div>'; return; }
+  const qualLabel = ['','😴 Buruk','😕 Kurang','😐 Cukup','😊 Bagus','🌟 Sempurna'];
+  el.innerHTML = [...state.sleeps].reverse().map(s => `
+    <div class="log-item">
+      <div class="log-left">
+        <div class="log-date">${fmt(s.date)}</div>
+        <div class="log-name">${s.hours} jam &nbsp;·&nbsp; ${qualLabel[s.qual]}</div>
+        <div class="log-meta">${s.bed} → ${s.wake}${s.nsdr?' &nbsp;·&nbsp; NSDR '+s.nsdr+'min':''}</div>
+        ${s.note?`<div class="log-meta" style="color:var(--text3)">${s.note}</div>`:''}
+      </div>
+      <button class="del-btn" onclick="delSleep(${s.id})" title="Hapus"><i class="ti ti-trash"></i></button>
+    </div>`).join('');
+}
+
+function delSleep(id) { state.sleeps = state.sleeps.filter(s => s.id !== id); save(); renderSleepLog(); updateSleepMetrics(); }
+
+function updateSleepMetrics() {
+  const recent = state.sleeps.slice(-7);
+  const last = state.sleeps[state.sleeps.length-1];
+  const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('sl-last', last ? last.hours : '—');
+  set('sl-nsdr', last ? (last.nsdr || '—') : '—');
+  if (recent.length) {
+    const avgH = (recent.reduce((a,s) => a+s.hours,0)/recent.length).toFixed(1);
+    const avgQ = (recent.reduce((a,s) => a+s.qual,0)/recent.length).toFixed(1);
+    set('sl-avg', avgH);
+    set('sl-qual', avgQ);
+  }
+}
+
+// ===================== EDIT WORKOUT =====================
+let editingWorkoutId = null;
+
+function editWorkout(id) {
+  const w = state.workouts.find(x => x.id === id);
+  if (!w) return;
+  editingWorkoutId = id;
+  // fill form
+  document.getElementById('wDate').value = w.date;
+  document.getElementById('wType').value = w.type;
+  document.getElementById('wRpe').value = w.rpe || '';
+  document.getElementById('wNote').value = w.note || '';
+  onWTypeChange();
+  const isRun = runTypes.has(w.type);
+  if (isRun) {
+    document.getElementById('wDist').value = w.dist || '';
+    document.getElementById('wTime').value = w.time || '';
+    document.getElementById('wPace').value = w.pace || '';
+    document.getElementById('wGear').value = w.gear || 'Ortuseight Hyperglide 4.0';
+    document.getElementById('wPB').checked = w.isPB || false;
+  } else {
+    document.getElementById('wHang').value = w.hang || '';
+  }
+  // update button
+  const btn = document.querySelector('[onclick="addWorkout()"]');
+  if (btn) { btn.innerHTML = '<i class="ti ti-device-floppy"></i> Update Workout'; btn.style.background = 'var(--accent3)'; }
+  // scroll to form
+  document.getElementById('panel-workout').scrollTop = 0;
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// patch addWorkout to handle edit mode
+const _origAddWorkout = addWorkout;
+window.addWorkout = function() {
+  if (editingWorkoutId) {
+    const type = document.getElementById('wType').value;
+    const isRun = runTypes.has(type);
+    const idx = state.workouts.findIndex(x => x.id === editingWorkoutId);
+    if (idx !== -1) {
+      const updated = {
+        ...state.workouts[idx],
+        date: document.getElementById('wDate').value,
+        type, label: wLabels[type],
+        rpe: +document.getElementById('wRpe').value || null,
+        note: document.getElementById('wNote').value.trim()
+      };
+      if (isRun) {
+        updated.dist = +document.getElementById('wDist').value || null;
+        updated.time = document.getElementById('wTime').value.trim();
+        updated.pace = document.getElementById('wPace').value;
+        updated.gear = document.getElementById('wGear').value;
+        updated.isPB = document.getElementById('wPB').checked;
+        if (updated.isPB && updated.time) {
+          state.pb = { time: updated.time, date: fmt(updated.date) };
+        }
+      } else {
+        updated.hang = +document.getElementById('wHang').value || null;
+      }
+      state.workouts[idx] = updated;
+      save();
+    }
+    // reset edit mode
+    editingWorkoutId = null;
+    ['wRpe','wNote','wDist','wTime','wPace','wHang'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    document.getElementById('wPB').checked = false;
+    const btn = document.querySelector('[onclick="addWorkout()"]');
+    if (btn) { btn.innerHTML = '<i class="ti ti-device-floppy"></i> Simpan'; btn.style.background = ''; }
+    renderWorkoutLog();
+    return;
+  }
+  _origAddWorkout();
+};
+
+</script>
+
+<!-- SUPLEMEN EDITOR MODAL -->
+<div id="suplemen-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);width:100%;max-width:480px;padding:24px;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="font-size:15px;font-weight:600;color:var(--text);">Edit Suplemen</div>
+      <button onclick="closeSuplemenEditor()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="suplemen-editor-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+    <div style="display:flex;gap:8px;margin-bottom:20px;">
+      <input type="text" id="suplemen-new-input" placeholder="Tambah suplemen baru..." style="flex:1;">
+      <button class="btn btn-primary" onclick="addSuplemenItem()" style="flex-shrink:0;"><i class="ti ti-plus"></i> Tambah</button>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn btn-ghost" onclick="closeSuplemenEditor()">Batal</button>
+      <button class="btn btn-primary" onclick="saveSuplemenEditor()"><i class="ti ti-device-floppy"></i> Simpan</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
