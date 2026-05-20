@@ -428,7 +428,7 @@
     <div class="metric-grid">
       <div class="metric">
         <div class="metric-label"><i class="ti ti-scale"></i> Berat</div>
-        <div class="metric-val" id="ov-weight">â€”</div>
+        <div class="metric-val" id="ov-weight">—</div>
         <div class="metric-unit">kg hari ini</div>
       </div>
       <div class="metric">
@@ -443,7 +443,7 @@
       </div>
       <div class="metric">
         <div class="metric-label"><i class="ti ti-clock"></i> Puasa</div>
-        <div class="metric-val" id="ov-fast">â€”</div>
+        <div class="metric-val" id="ov-fast">—</div>
         <div class="metric-unit">jam terakhir</div>
       </div>
     </div>
@@ -461,7 +461,10 @@
         <div style="font-size:12px;color:var(--text2);">Ortuseight Hyperblast 2.0</div>
       </div>
       <div class="card">
-        <div class="card-title"><i class="ti ti-checklist"></i> Rutinitas</div>
+        <div class="card-title" style="justify-content:space-between;">
+          <span><i class="ti ti-checklist"></i> Rutinitas</span>
+          <button class="btn btn-ghost" onclick="openRoutineEditor()" style="padding:4px 10px;font-size:12px;"><i class="ti ti-pencil"></i> Edit</button>
+        </div>
         <div class="checklist" id="routine-list"></div>
       </div>
     </div>
@@ -539,7 +542,7 @@
       <div class="field">
         <label class="field-label">Quick-add preset</label>
         <select id="quickFood" onchange="quickFill()">
-          <option value="">â€” pilih preset â€”</option>
+          <option value="">— pilih preset —</option>
           <option value="gado">Gado-Gado Custom (2 telur)</option>
           <option value="whey1">Whey Protein (1 scoop)</option>
           <option value="whey2">Whey Protein (2 scoop)</option>
@@ -626,20 +629,20 @@
           <input type="date" id="wDate">
         </div>
         <div class="field">
-          <label class="field-label">RPE (1â€“10)</label>
+          <label class="field-label">RPE (1–10)</label>
           <input type="number" id="wRpe" min="1" max="10" step="1" placeholder="7">
         </div>
       </div>
       <div class="field">
         <label class="field-label">Tipe sesi</label>
         <select id="wType" onchange="onWTypeChange()">
-          <option value="upper_push">Upper Push â€” Dada / Bahu / Tricep</option>
-          <option value="upper_pull">Upper Pull â€” Punggung / Bicep / Dead Hang</option>
-          <option value="leg">Leg Day â€” Quads / Hamstrings / Calves</option>
-          <option value="run_interval">Lari â€” Norwegian 4x4 Intervals</option>
-          <option value="run_tempo">Lari â€” Broken Tempo / Interval Cruise</option>
-          <option value="run_aerobic">Lari â€” Aerobic Threshold</option>
-          <option value="run_easy">Lari â€” Easy / Recovery Run</option>
+          <option value="upper_push">Upper Push — Dada / Bahu / Tricep</option>
+          <option value="upper_pull">Upper Pull — Punggung / Bicep / Dead Hang</option>
+          <option value="leg">Leg Day — Quads / Hamstrings / Calves</option>
+          <option value="run_interval">Lari — Norwegian 4x4 Intervals</option>
+          <option value="run_tempo">Lari — Broken Tempo / Interval Cruise</option>
+          <option value="run_aerobic">Lari — Aerobic Threshold</option>
+          <option value="run_easy">Lari — Easy / Recovery Run</option>
         </select>
       </div>
 
@@ -656,8 +659,8 @@
         </div>
         <div class="field-row">
           <div class="field">
-            <label class="field-label">Pace (min/km) â€” auto</label>
-            <input type="text" id="wPace" placeholder="â€”" readonly style="color:var(--text3);">
+            <label class="field-label">Pace (min/km) — auto</label>
+            <input type="text" id="wPace" placeholder="—" readonly style="color:var(--text3);">
           </div>
           <div class="field">
             <label class="field-label">Sepatu / Gear</label>
@@ -676,7 +679,7 @@
 
       <div id="gym-fields">
         <div class="field">
-          <label class="field-label">Dead Hang (detik) â€” khusus Pull Day</label>
+          <label class="field-label">Dead Hang (detik) — khusus Pull Day</label>
           <input type="number" id="wHang" min="0" step="1" placeholder="40">
         </div>
       </div>
@@ -697,6 +700,25 @@
 
 </div>
 
+<!-- ROUTINE EDITOR MODAL -->
+<div id="routine-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);width:100%;max-width:480px;padding:24px;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="font-size:15px;font-weight:600;color:var(--text);">Edit Rutinitas</div>
+      <button onclick="closeRoutineEditor()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="routine-editor-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+    <div style="display:flex;gap:8px;margin-bottom:20px;">
+      <input type="text" id="routine-new-input" placeholder="Tambah rutinitas baru..." style="flex:1;">
+      <button class="btn btn-primary" onclick="addRoutineItem()" style="flex-shrink:0;"><i class="ti ti-plus"></i> Tambah</button>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn btn-ghost" onclick="closeRoutineEditor()">Batal</button>
+      <button class="btn btn-primary" onclick="saveRoutineEditor()"><i class="ti ti-device-floppy"></i> Simpan</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const today = () => new Date().toISOString().split('T')[0];
 const fmt = d => new Date(d + 'T00:00:00').toLocaleDateString('id-ID', {day:'numeric',month:'short',year:'numeric'});
@@ -711,7 +733,7 @@ let state = {
     {id:'r1', label:'Workout pagi (~4:20 AM)', done: false},
     {id:'r2', label:'Sunlight exposure pagi', done: false},
     {id:'r3', label:'NSDR / deep rest', done: false},
-    {id:'r4', label:'Intermittent fasting â‰¥13 jam', done: false},
+    {id:'r4', label:'Intermittent fasting ≥13 jam', done: false},
     {id:'r5', label:'Post-lunch walking', done: false},
     {id:'r6', label:'Suplemen harian (Creatine, Mg, Omega-3, D3)', done: false}
   ],
@@ -810,7 +832,7 @@ function renderFoodLog() {
     <div class="log-item">
       <div class="log-left">
         <div class="log-name">${f.name}</div>
-        <div class="log-meta">${f.cal} kcal &nbsp;Â·&nbsp; P ${f.prot}g &nbsp;Â·&nbsp; K ${f.carb}g &nbsp;Â·&nbsp; F ${f.fiber}g</div>
+        <div class="log-meta">${f.cal} kcal &nbsp;·&nbsp; P ${f.prot}g &nbsp;·&nbsp; K ${f.carb}g &nbsp;·&nbsp; F ${f.fiber}g</div>
       </div>
       <button class="del-btn" onclick="delFood(${f.id})" title="Hapus"><i class="ti ti-trash"></i></button>
     </div>`).join('');
@@ -856,7 +878,7 @@ function renderWeightLog() {
     <div class="log-item">
       <div class="log-left">
         <div class="log-date">${fmt(w.date)}</div>
-        <div class="log-name">${w.weight} kg ${w.grip ? '&nbsp;Â·&nbsp; Dead hang: ' + w.grip + 's' : ''}</div>
+        <div class="log-name">${w.weight} kg ${w.grip ? '&nbsp;·&nbsp; Dead hang: ' + w.grip + 's' : ''}</div>
         ${w.note ? `<div class="log-meta">${w.note}</div>` : ''}
       </div>
       <button class="del-btn" onclick="delWeight(${w.id})" title="Hapus"><i class="ti ti-trash"></i></button>
@@ -871,7 +893,7 @@ function delWeight(id) {
 function updateOverviewWeight() {
   const last = state.weights[state.weights.length - 1];
   const el = document.getElementById('ov-weight');
-  if (el) el.textContent = last ? last.weight : 'â€”';
+  if (el) el.textContent = last ? last.weight : '—';
   const hw = document.getElementById('headerWeight');
   if (hw) hw.textContent = last ? last.weight + ' kg' : '';
 }
@@ -903,11 +925,11 @@ function renderFastLog() {
     return `<div class="log-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
         <div>
-          <div class="log-date">${fmtDT(f.start)} â†’ ${fmtDT(f.end)}</div>
+          <div class="log-date">${fmtDT(f.start)} → ${fmtDT(f.end)}</div>
           <div class="log-name">${f.hours.toFixed(1)} jam <span style="font-size:12px;color:var(--text3);">/ target ${f.target} jam</span></div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span class="badge ${met?'badge-green':'badge-amber'}">${met?'âœ“ Met':'Kurang'}</span>
+          <span class="badge ${met?'badge-green':'badge-amber'}">${met?'✓ Met':'Kurang'}</span>
           <button class="del-btn" onclick="delFast(${f.id})" title="Hapus"><i class="ti ti-trash"></i></button>
         </div>
       </div>
@@ -924,8 +946,8 @@ function delFast(id) { state.fasts = state.fasts.filter(f => f.id !== id); save(
 // WORKOUT
 const wLabels = {
   upper_push:'Upper Push', upper_pull:'Upper Pull', leg:'Leg Day',
-  run_interval:'Lari â€” Norwegian 4x4', run_tempo:'Lari â€” Broken Tempo',
-  run_aerobic:'Lari â€” Aerobic Threshold', run_easy:'Lari â€” Easy Run'
+  run_interval:'Lari — Norwegian 4x4', run_tempo:'Lari — Broken Tempo',
+  run_aerobic:'Lari — Aerobic Threshold', run_easy:'Lari — Easy Run'
 };
 const runTypes = new Set(['run_interval','run_tempo','run_aerobic','run_easy']);
 
@@ -985,13 +1007,13 @@ function renderWorkoutLog() {
   el.innerHTML = [...state.workouts].reverse().map(w => {
     const isRun = runTypes.has(w.type);
     const meta = isRun
-      ? [w.dist?w.dist+'km':null, w.time||null, w.pace?'@'+w.pace+'/km':null, w.gear||null].filter(Boolean).join(' Â· ')
-      : [w.hang?'Dead hang: '+w.hang+'s':null].filter(Boolean).join(' Â· ');
+      ? [w.dist?w.dist+'km':null, w.time||null, w.pace?'@'+w.pace+'/km':null, w.gear||null].filter(Boolean).join(' · ')
+      : [w.hang?'Dead hang: '+w.hang+'s':null].filter(Boolean).join(' · ');
     const badgeCls = isRun ? 'badge-blue' : (w.type==='leg'?'badge-amber':'badge-green');
     return `<div class="log-item">
       <div class="log-left">
-        <div class="log-date">${fmt(w.date)}${w.rpe?' Â· RPE '+w.rpe:''}</div>
-        <div class="log-name">${w.label}${w.isPB?' ðŸ…':''}</div>
+        <div class="log-date">${fmt(w.date)}${w.rpe?' · RPE '+w.rpe:''}</div>
+        <div class="log-name">${w.label}${w.isPB?' 🏅':''}</div>
         ${meta?`<div class="log-meta">${meta}</div>`:''}
         ${w.note?`<div class="log-meta" style="color:var(--text3)">${w.note}</div>`:''}
       </div>
@@ -1072,12 +1094,72 @@ function renderOverview() {
   const pbd = document.getElementById('ov-pb-date'); if(pbd) pbd.textContent = state.pb.date;
   const lastFast = state.fasts[state.fasts.length-1];
   const ovf = document.getElementById('ov-fast');
-  if(ovf) ovf.textContent = lastFast ? lastFast.hours.toFixed(1) : 'â€”';
+  if(ovf) ovf.textContent = lastFast ? lastFast.hours.toFixed(1) : '—';
 }
 
 onWTypeChange();
 renderOverview();
 setTimeout(renderWeightChart, 100);
+
+// ROUTINE EDITOR
+let routineDraft = [];
+
+function openRoutineEditor() {
+  routineDraft = state.routine.map(r => ({...r}));
+  renderRoutineEditorList();
+  const modal = document.getElementById('routine-modal');
+  modal.style.display = 'flex';
+}
+
+function closeRoutineEditor() {
+  document.getElementById('routine-modal').style.display = 'none';
+  document.getElementById('routine-new-input').value = '';
+}
+
+function renderRoutineEditorList() {
+  const el = document.getElementById('routine-editor-list');
+  if (!routineDraft.length) {
+    el.innerHTML = '<div style="font-family:var(--font-mono);font-size:12px;color:var(--text3);">Belum ada rutinitas.</div>';
+    return;
+  }
+  el.innerHTML = routineDraft.map((r, i) => `
+    <div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;">
+      <i class="ti ti-grip-vertical" style="color:var(--text3);font-size:14px;flex-shrink:0;"></i>
+      <input type="text" value="${r.label}" onchange="routineDraft[${i}].label=this.value"
+        style="flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font-display);font-size:13px;padding:0;">
+      <button onclick="routineDraft.splice(${i},1);renderRoutineEditorList();"
+        style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;flex-shrink:0;padding:0 2px;">
+        <i class="ti ti-trash"></i>
+      </button>
+    </div>`).join('');
+}
+
+function addRoutineItem() {
+  const input = document.getElementById('routine-new-input');
+  const label = input.value.trim();
+  if (!label) return;
+  routineDraft.push({ id: 'r' + Date.now(), label, done: false });
+  input.value = '';
+  renderRoutineEditorList();
+}
+
+function saveRoutineEditor() {
+  state.routine = routineDraft.map(r => ({...r, done: false}));
+  state.routineDate = today();
+  save();
+  renderRoutine();
+  closeRoutineEditor();
+}
+
+// Close modal on backdrop click
+document.getElementById('routine-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeRoutineEditor();
+});
+
+// Enter key to add routine
+document.getElementById('routine-new-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') addRoutineItem();
+});
 </script>
 </body>
 </html>
